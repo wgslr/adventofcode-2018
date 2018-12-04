@@ -948,3 +948,27 @@ const { maxIdx: bestMinute } = findMax(sums.guards[bestGuard]);
 
 console.log(bestGuard, bestMinute)
 console.log(bestGuard * bestMinute)
+
+// PART 2
+
+bestGuards = [];
+bestCounts = [];
+for (let i = 0; i < 60; ++i) {
+  bestGuards[i] = -1;
+  bestCounts[i] = 0;
+}
+
+Object.entries(sums.guards).forEach(([guard, minuteCounts]) => {
+  const { max: count, maxIdx: bestMinute } = findMax(minuteCounts);
+  if (bestCounts[bestMinute] < count) {
+    bestGuards[bestMinute] = guard;
+    bestCounts[bestMinute] = count;
+  }
+});
+
+
+console.log(findMax(bestCounts));
+const { maxIdx: bestMinute2 } = findMax(bestCounts);
+
+console.log(bestCounts[bestMinute2]);
+console.log(bestGuards[bestMinute2] * bestMinute2);
