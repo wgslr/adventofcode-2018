@@ -16,6 +16,7 @@ defmodule Advent do
       else
         x3
       end
+
       {x2, x3}
     end
 end
@@ -23,7 +24,6 @@ end
 
 {x2, x3} = File.stream!("input")
 |> Stream.map(&Advent.count/1)
-#|> Stream.each(&IO.inspect/1)
 |> Enum.reduce({0,0}, &Advent.proc/2)
 
 IO.inspect(x2  * x3)
