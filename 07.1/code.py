@@ -2,7 +2,7 @@
 
 import networkx as nx
 
-INPUT = "./input.csv"
+INPUT = "./input.nx"
 
 
 if __name__ == "__main__":
