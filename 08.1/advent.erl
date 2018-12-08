@@ -15,7 +15,7 @@ run(Nums) ->
 
 read_node([Childs, Metas | Rest]) ->
     {Sum, Rest2} = lists:foldl(fun(_, {S, Nums}) ->
-        {S2,R} = read_node(Nums),
-        {S + S2, R}
-    end, {0, Rest}, lists:seq(1,Childs)),
+                                       {S2,R} = read_node(Nums),
+                                       {S + S2, R}
+                               end, {0, Rest}, lists:seq(1,Childs)),
     {Sum + lists:sum(lists:sublist(Rest2, Metas)), lists:sublist(Rest2, Metas + 1, 30000)}.
