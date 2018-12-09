@@ -1,7 +1,7 @@
 #!/usr/bin/node
 
 const PLAYERS = 439;
-const LAST_MARBLE = 71307
+const LAST_MARBLE = 71307 * 100
 // const PLAYERS = 9;
 // const LAST_MARBLE = 25
 
@@ -35,6 +35,10 @@ function remove(pos) {
 }
 
 while (nextMarble <= LAST_MARBLE) {
+  if(nextMarble % 100000 == 0) {
+    console.log(`Reached marble ${nextMarble}`);
+  }
+
   if (nextMarble % 23 != 0) {
     currentMarble = insert(currentMarble + 2, nextMarble);
   } else {
