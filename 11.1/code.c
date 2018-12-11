@@ -36,14 +36,13 @@ int main()
             continue;
           }
           SUMS[sx][sy] += LEVELS[x][y];
-
-          if (SUMS[sx][sy] > bests)
-          {
-            bests = SUMS[sx][sy];
-            bestx = sx;
-            besty = sy;
-          }
         }
+      }
+      if (x >= 3 && y >= 3 && SUMS[x - 2][y - 2] > bests)
+      {
+        bests = SUMS[x - 2][y - 2];
+        bestx = x - 2;
+        besty = y - 2;
       }
     }
   }
@@ -52,4 +51,3 @@ int main()
 
   return 0;
 }
-
