@@ -2,4 +2,4 @@ run: code
 	./code
 
 code: code.c
-	gcc  $< -o $@
+	gcc  $< -o $@ -O3
