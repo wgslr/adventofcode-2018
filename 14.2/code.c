@@ -152,6 +152,7 @@ int main()
   } else {
     printf("reached limit\n");
   }
+  printf("generations: %d\n", generation);
   // print_all(generation, leftmost, elf1, elf2);
 
   // list *result = steps(leftmost, INPUT);
