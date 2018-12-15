@@ -32,14 +32,23 @@ void print_pots(const unsigned char octet)
   print_bit(octet, '#', '.');
 }
 
-void generate_classifier() {
+void generate_classifier()
+{
   char pattern[8];
   char result;
 
   printf("switch(%s)\n{\n");
 
-  while(scanf("%s => %c", pattern, &result) != EOF) {
-    unsigned char binary = parse(pattern);
+  while (scanf("%s => %c", pattern, &result) != EOF)
+  {
+    if (result == '#')
+    {
+      unsigned char binary = parse(pattern);
+      printf("  case 0x%X:  \n    return 1;\n", binary);
+    }
+  }
+  printf("  default:\n    return 0;\n}");
+}
 
     printf("case 0x%X:\n\treturn %u;\n", binary, result == '#');
   }
