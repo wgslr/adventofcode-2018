@@ -2,6 +2,10 @@
 #include <cstdlib>
 #include <cstring>
 
+const int SIZE = 200;
+const int ZERO = SIZE * 8 / 2; // ofset
+unsigned char *state[2];
+
 char parse(char pattern[])
 {
   unsigned char result = 0;
@@ -50,21 +54,88 @@ void generate_classifier()
   printf("  default:\n    return 0;\n}");
 }
 
-    printf("case 0x%X:\n\treturn %u;\n", binary, result == '#');
+inline unsigned char next(unsigned char current)
+{
+  switch (current)
+  {
+  case 0xB:
+    return 1;
+  case 0xA:
+    return 1;
+  case 0x5:
+    return 1;
+  case 0x1A:
+    return 1;
+  case 0x18:
+    return 1;
+  case 0x7:
+    return 1;
+  case 0xC:
+    return 1;
+  case 0x4:
+    return 1;
+  case 0xD:
+    return 1;
+  case 0x1E:
+    return 1;
+  case 0x11:
+    return 1;
+  case 0x1D:
+    return 1;
+  case 0x2:
+    return 1;
+  case 0x9:
+    return 1;
+  case 0x16:
+    return 1;
+  default:
+    return 0;
   }
-  printf("}");
 }
 
-int main(int argc, char* argv[]) 
+void set(unsigned char*  st , bool val, int pos)
 {
-  if(argc > 1 && strcmp(argv[1], "generate") ==0 ) {
+  printf("Set %d to %d\n", pos, val);
+  const int octet = pos >> 3;
+  const int bit = pos % 8;
+  if (val)
+  {
+    st[octet] |= val << (7 - bit);
+  }
+  else
+  {
+    st[octet] &= ~(1 << (7 - bit));
+  }
+}
+
+void read_input()
+{
+  char buff[200];
+  scanf("initial state: %s", buff);
+
+  for (int i = 0; buff[i] != '\0'; ++i)
+  {
+    set(state[0], buff[i] == '#', ZERO + i );
+  }
+}
+
+int main(int argc, char *argv[])
+{
+  if (argc > 1 && strcmp(argv[1], "generate") == 0)
+  {
     generate_classifier();
     return 0;
   }
 
-  char pattern[] = ".#.##";
-  print_hex(parse(pattern));
-  printf("\n");
-  print_bit(parse(pattern), '1', '0');
+  state[0] = (unsigned char*)calloc(SIZE, sizeof(unsigned char));
+  state[1] = (unsigned char*)calloc(SIZE, sizeof(unsigned char));
+
+  read_input();
+  for (int i = 0; i < SIZE; ++i)
+  {
+    print_pots(state[0][i]);
+    printf(" ");
+  }
+
   return 0;
 }
