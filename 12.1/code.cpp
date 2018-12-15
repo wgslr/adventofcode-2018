@@ -2,18 +2,18 @@
 #include <cstdlib>
 #include <cstring>
 
-const int SIZE = 2000;
+const long SIZE = 50000000000l / 8 + 200;
 unsigned char *state[2];
 
 // counting bits
-const int ZERO = SIZE * 8 / 2; // ofset
-int first = ZERO;
-int last = ZERO;
+const long ZERO = SIZE * 8 / 2; // ofset
+long first = ZERO;
+long last = ZERO;
 
 char parse(char pattern[])
 {
   unsigned char result = 0;
-  for (int i = 0; pattern[i] != '\0'; ++i)
+  for (long i = 0; pattern[i] != '\0'; ++i)
   {
     // result |= (pattern[i] == '#' ? 0x01 : 0x00) << (8 - i - 1);
     result <<= 1;
@@ -100,7 +100,7 @@ inline unsigned char next(unsigned char current)
     return 0;
   }
 
-#else 
+#else
   switch (current)
   {
   case 0b00000011:
@@ -137,10 +137,10 @@ inline unsigned char next(unsigned char current)
 #endif
 }
 
-inline void set(unsigned char *st, bool val, int pos)
+inline void set(unsigned char *st, bool val, long pos)
 {
-  const int octet = pos / 8;
-  const int bit = pos % 8;
+  const long octet = pos / 8;
+  const long bit = pos % 8;
   if (val)
   {
     st[octet] |= val << (7 - bit);
@@ -156,7 +156,7 @@ void read_input()
   char buff[200];
   scanf("initial state: %s", buff);
 
-  for (int i = 0; buff[i] != '\0'; ++i)
+  for (long i = 0; buff[i] != '\0'; ++i)
   {
     set(state[0], buff[i] == '#', ZERO + i);
     if ('#' == buff[i])
@@ -164,20 +164,20 @@ void read_input()
   }
 }
 
-bool get1(const unsigned char *const st, int pos)
+bool get1(const unsigned char *const st, long pos)
 {
-  const int octet = pos / 8;
-  const int bit = pos % 8;
+  const long octet = pos / 8;
+  const long bit = pos % 8;
 
   return !!(st[octet] & (0x01 << (7 - bit)));
 }
 
 // gets the sourroundings of given pos
-inline unsigned char get5(const unsigned char *const st, const int pos)
+inline unsigned char get5(const unsigned char *const st, const long pos)
 {
-  const int first = pos - 2;
-  const int octet = first / 8;
-  const int bit = first % 8;
+  const long first = pos - 2;
+  const long octet = first / 8;
+  const long bit = first % 8;
   if (bit <= 3)
   { // contained in one octet
     // clean irrelevant bits to the left and then move to the rightmost bits
@@ -191,10 +191,10 @@ inline unsigned char get5(const unsigned char *const st, const int pos)
   }
 }
 
-int score(const unsigned char *const st)
+long score(const unsigned char *const st)
 {
-  int result = 0;
-  for (int i = first; i < last; ++i)
+  long result = 0;
+  for (long i = first; i <= last; ++i)
   {
     if (get1(st, i))
     {
@@ -204,13 +204,14 @@ int score(const unsigned char *const st)
   return result;
 }
 
-void print_all(const unsigned char *const st)
+void print_all(const unsigned char *const st, long generation)
 {
-  printf("(%d:%d) ", first, last);
-  for (int i = first / 8; i <= last / 8; ++i)
+  printf("%8ld %8ld (%ld:%ld) ", generation + 1, score(st), first, last);
+  for (long i = first; i <= last; ++i)
   {
-    print_pots(st[i]);
-    printf(" ");
+    // print_pots(st[i]);
+    printf(get1(st, i) ? "#" : ".");
+    printf("");
   }
   printf("\n");
 }
@@ -223,39 +224,70 @@ int main(int argc, char *argv[])
     return 0;
   }
 
-  const int generations = atoi(argv[1]);
+  printf("ZERO %ld\tSIZE %ld\n", ZERO, SIZE);
+
+  const long generations = atol(argv[1]);
 
   state[0] = (unsigned char *)calloc(SIZE, sizeof(unsigned char));
   state[1] = (unsigned char *)calloc(SIZE, sizeof(unsigned char));
 
   read_input();
 
-  int curr, prev;
+  long curr, prev;
   prev = 0;
   curr = 1;
 
-  int i = 0;
+  long i = 0;
   for (; i < generations; ++i)
   {
-    last += 2; // heurisitic
-    first -= 2;
-    for (int i = first; i <= last; ++i)
+    for (long i = first; i <= last; ++i)
     {
       set(state[curr], next(get5(state[prev], i)), i);
     }
 
-    print_all(state[curr]);
+    set(state[curr], next(get5(state[prev], first - 2)), first - 2);
+    set(state[curr], next(get5(state[prev], first - 1)), first - 1);
+    if (get1(state[curr], first - 2))
+    {
+      first -= 2;
+    }
+    else if (get1(state[curr], first - 1))
+    {
+      first -= 1;
+    }
+    else if (!get1(state[curr], first))
+    {
+      first += 1;
+    }
+
+    set(state[curr], next(get5(state[prev], last + 1)), last + 1);
+    set(state[curr], next(get5(state[prev], last + 2)), last + 2);
+    if (get1(state[curr], last + 2))
+    {
+      last += 2;
+    }
+    else if (get1(state[curr], last + 1))
+    {
+      last += 1;
+    }
+    else if (!get1(state[curr], last))
+    {
+      last -= 1;
+    }
+
+    print_all(state[curr], i);
     prev = curr;
     curr = !prev;
 
-    if (i % 10000 == 0)
+    if (i % 1000000 == 0)
     {
-      fprintf(stderr, "generation %d\tfirst %d\tlast %d=%d\n", i, first, last, last / 8);
+      fprintf(stderr, "generation %ld million\tfirst %ld\tlast %ld = %ld\tlength %ld\n", i / 1000000, first, last, last / 8, last - first);
     }
   }
-  fprintf(stderr, "generation %d\tfirst %d\tlast %d=%d\n", i, first, last, last / 8);
 
-  printf("%d\n", score(state[0]));
+  fprintf(stderr, "generation %ld\tfirst %ld\tlast %ld=%ld\n", i, first, last, last / 8);
+
+  printf("%ld\n", score(state[0]));
 
   return 0;
 }
