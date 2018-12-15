@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 
-const int SIZE = 200;
+const int SIZE = 2000;
 unsigned char *state[2];
 
 // counting bits
@@ -45,14 +45,17 @@ void generate_classifier()
   char pattern[8];
   char result;
 
-  printf("switch(%s)\n{\n");
+  printf("switch(%s)\n{\n", "current");
 
   while (scanf("%s => %c", pattern, &result) != EOF)
   {
     if (result == '#')
     {
       unsigned char binary = parse(pattern);
-      printf("  case 0x%X:  \n    return 1;\n", binary);
+      // printf("  case 0x%X:  \n    return 1;\n", binary);
+      printf("  case 0b");
+      print_bit(binary, '1', '0');
+      printf(":\n    return 1;\n");
     }
   }
   printf("  default:\n    return 0;\n}");
@@ -60,6 +63,7 @@ void generate_classifier()
 
 inline unsigned char next(unsigned char current)
 {
+#ifndef TEST
   switch (current)
   {
   case 0xB:
@@ -95,6 +99,42 @@ inline unsigned char next(unsigned char current)
   default:
     return 0;
   }
+
+#else 
+  switch (current)
+  {
+  case 0b00000011:
+    return 1;
+  case 0b00000100:
+    return 1;
+  case 0b00001000:
+    return 1;
+  case 0b00001010:
+    return 1;
+  case 0b00001011:
+    return 1;
+  case 0b00001100:
+    return 1;
+  case 0b00001111:
+    return 1;
+  case 0b00010101:
+    return 1;
+  case 0b00010111:
+    return 1;
+  case 0b00011010:
+    return 1;
+  case 0b00011011:
+    return 1;
+  case 0b00011100:
+    return 1;
+  case 0b00011101:
+    return 1;
+  case 0b00011110:
+    return 1;
+  default:
+    return 0;
+  }
+#endif
 }
 
 inline void set(unsigned char *st, bool val, int pos)
@@ -194,21 +234,26 @@ int main(int argc, char *argv[])
   prev = 0;
   curr = 1;
 
-  for (int i = 0; i < generations; ++i)
+  int i = 0;
+  for (; i < generations; ++i)
   {
     last += 2; // heurisitic
-    for(int i = first - 2; i <= last; ++i) {
-      set(state[curr], next(get5(state[curr], i)), i);
+    first -= 2;
+    for (int i = first; i <= last; ++i)
+    {
+      set(state[curr], next(get5(state[prev], i)), i);
     }
 
-    // print_all(state[curr]);
+    print_all(state[curr]);
     prev = curr;
     curr = !prev;
 
-    if(i % 10000 == 0) {
-      fprintf(stderr, "generation %d\tfirst %d\tlast %d=%d\n", i, first, last, last/8);
+    if (i % 10000 == 0)
+    {
+      fprintf(stderr, "generation %d\tfirst %d\tlast %d=%d\n", i, first, last, last / 8);
     }
   }
+  fprintf(stderr, "generation %d\tfirst %d\tlast %d=%d\n", i, first, last, last / 8);
 
   printf("%d\n", score(state[0]));
 
