@@ -119,13 +119,21 @@ void read_input()
   for (int i = 0; buff[i] != '\0'; ++i)
   {
     set(state[0], buff[i] == '#', ZERO + i);
-    if('#' == buff[i])
+    if ('#' == buff[i])
       last = ZERO + i;
   }
 }
 
+bool get1(const unsigned char *const st, int pos)
+{
+  const int octet = pos / 8;
+  const int bit = pos % 8;
+
+  return !!(st[octet] & (0x01 << (7 - bit)));
+}
+
 // gets the sourroundings of given pos
-unsigned char get5(unsigned char *st, int pos)
+inline unsigned char get5(const unsigned char *const st, const int pos)
 {
   const int first = pos - 2;
   const int octet = first / 8;
@@ -141,6 +149,19 @@ unsigned char get5(unsigned char *st, int pos)
     const unsigned char result = (st[octet] & (0xFF >> bit)) << overflow;
     return result | st[octet + 1] >> (8 - overflow);
   }
+}
+
+int score(const unsigned char *const st)
+{
+  int result = 0;
+  for (int i = first; i < last; ++i)
+  {
+    if (get1(st, i))
+    {
+      result += i - ZERO;
+    }
+  }
+  return result;
 }
 
 int main(int argc, char *argv[])
@@ -176,11 +197,16 @@ int main(int argc, char *argv[])
     printf(" ");
   }
 
-    printf("\n\n");
-  for(int i = first; i <= last; ++i) {
+  printf("\n\n");
+  for (int i = first; i <= last; ++i)
+  {
     print_pots(get5(state[0], i));
     printf("\n");
   }
+
+  printf("First %u last %u\n", first, last);
+
+  printf("%d\n", score(state[0]));
 
   return 0;
 }
