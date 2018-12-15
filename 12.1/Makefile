@@ -1,5 +1,5 @@
 run: code
-	./code < input
+	./code 20 < input
 
 .PHONY: generate
 generate: classifier.cpp

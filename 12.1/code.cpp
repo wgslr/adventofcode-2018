@@ -164,6 +164,17 @@ int score(const unsigned char *const st)
   return result;
 }
 
+void print_all(const unsigned char *const st)
+{
+  printf("(%d:%d) ", first, last);
+  for (int i = first / 8; i <= last / 8; ++i)
+  {
+    print_pots(st[i]);
+    printf(" ");
+  }
+  printf("\n");
+}
+
 int main(int argc, char *argv[])
 {
   if (argc > 1 && strcmp(argv[1], "generate") == 0)
@@ -172,39 +183,32 @@ int main(int argc, char *argv[])
     return 0;
   }
 
+  const int generations = atoi(argv[1]);
+
   state[0] = (unsigned char *)calloc(SIZE, sizeof(unsigned char));
   state[1] = (unsigned char *)calloc(SIZE, sizeof(unsigned char));
 
-  // unsigned char test[2] = {0x01, 0xC0};
-  // printf("%x %x\n", test[0], test[1]);
-  // printf("%u\n", *((short *)test));
-  // printf("%u\n", (*((short *)test)) << 1);
-  // printf("%u\n\n", sizeof(short));
-
-  // print_bit(0xF0, '1', '0');
-  // printf("\n");
-  // print_bit(0xF0 << -1, '1', '0');
-  // printf("\n");
-  // print_bit(0xFF >> 1, '1', '0');
-  // printf("\n");
-
-  // ("%x %x\n", 0xF00F, 0xF00F << -1);
-
   read_input();
-  for (int i = 0; i < SIZE; ++i)
-  {
-    print_pots(state[0][i]);
-    printf(" ");
-  }
 
-  printf("\n\n");
-  for (int i = first; i <= last; ++i)
-  {
-    print_pots(get5(state[0], i));
-    printf("\n");
-  }
+  int curr, prev;
+  prev = 0;
+  curr = 1;
 
-  printf("First %u last %u\n", first, last);
+  for (int i = 0; i < generations; ++i)
+  {
+    last += 2; // heurisitic
+    for(int i = first - 2; i <= last; ++i) {
+      set(state[curr], next(get5(state[curr], i)), i);
+    }
+
+    // print_all(state[curr]);
+    prev = curr;
+    curr = !prev;
+
+    if(i % 10000 == 0) {
+      fprintf(stderr, "generation %d\tfirst %d\tlast %d=%d\n", i, first, last, last/8);
+    }
+  }
 
   printf("%d\n", score(state[0]));
 
