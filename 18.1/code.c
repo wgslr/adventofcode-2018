@@ -65,11 +65,11 @@ bool enough(const field type, const int required, const int x, const int y,
   int count = 0;
   for (int yy = max(y - 1, 0); yy <= min(y + 1, HEIGHT - 1); yy++) {
     for (int xx = max(x - 1, 0); xx <= min(x + 1, HEIGHT - 1); xx++) {
-      if (xx == x && yy == x) {
+      if (xx == x && yy == y) {
         continue;
       }
 
-      if (state[y][x] == type) {
+      if (state[yy][xx] == type) {
         ++count;
         if (count >= required)
           return true;
@@ -103,6 +103,9 @@ void tick(const field before[HEIGHT][WIDTH], field after[HEIGHT][WIDTH]) {
         } else {
           after[y][x] = GROUND;
         }
+        break;
+      default:
+        fprintf(stderr, "Unexpected befpre[%d][%d]: %d\n", y, x, before[y][x]);
       }
     }
   }
