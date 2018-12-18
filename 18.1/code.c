@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
+
 
 #ifdef TEST
 const int WIDTH = 10;
@@ -105,21 +107,45 @@ void tick(const field before[HEIGHT][WIDTH], field after[HEIGHT][WIDTH]) {
         }
         break;
       default:
-        fprintf(stderr, "Unexpected befpre[%d][%d]: %d\n", y, x, before[y][x]);
+        fprintf(stderr, "Unexpected before[%d][%d]: %d\n", y, x, before[y][x]);
+        assert(false);
       }
     }
   }
+}
+
+int score(field state[HEIGHT][WIDTH]) {
+  int yards = 0;
+  int trees = 0;
+  for (int y = 0; y < HEIGHT; ++y) {
+    for (int x = 0; x < WIDTH; ++x) {
+      if (state[y][x] == TREE) {
+        trees++;
+      } else if (state[y][x] == YARD) {
+        ++yards;
+      }
+    }
+  }
+  return yards * trees;
 }
 
 int main() {
   field state[2][HEIGHT][WIDTH];
 
   load(state[0]);
-  display(state[0]);
+  // display(state[0]);
 
-  tick(state[0], state[1]);
-  puts("");
-  display(state[1]);
+  int curr, prev;
+  prev = 1;
+  curr = 0;
+  for (int i = 0; i < LIMIT; ++i) {
+    curr = !curr;
+    prev = !prev;
+    tick(state[prev], state[curr]);
+  }
+  display(state[curr]);
+
+  printf("%d\n", score(state[curr]));
 
   return 0;
 }
