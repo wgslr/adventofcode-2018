@@ -1,5 +1,5 @@
 run: code
-	./code < input
+	./code 1000 < input
 
 test: code.test sample
 	./code.test < sample

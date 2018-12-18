@@ -126,8 +126,8 @@ int score(field state[HEIGHT][WIDTH]) {
   return yards * trees;
 }
 
-long main(long argc, char *argv[]) {
-  long curr, prev, limit;
+int main(int argc, char *argv[]) {
+  int curr, prev, limit;
   field state[2][HEIGHT][WIDTH];
 
   if (argc == 1)
