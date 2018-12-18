@@ -1,29 +1,30 @@
-#include <stdio.h>
-#include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-const int LIMIT = 10;
+#ifdef TEST
+const int WIDTH = 10;
+const int HEIGHT = 10;
+#else
 const int WIDTH = 50;
 const int HEIGHT = 50;
+#endif
 
-typedef enum
-{
-  GROUND,
-  TREE,
-  YARD
-} field;
+const int LIMIT = 10;
 
-void load(field state[HEIGHT][WIDTH])
-{
+typedef enum { GROUND, TREE, YARD } field;
+
+int max(const int x, const int y) { return x > y ? x : y; }
+
+int min(const int x, const int y) { return x < y ? x : y; }
+
+void load(field state[HEIGHT][WIDTH]) {
   char line[WIDTH];
-  for (int y = 0; y < HEIGHT; ++y)
-  {
+  for (int y = 0; y < HEIGHT; ++y) {
     scanf("%s\n", line);
-    for (int x = 0; x < WIDTH; ++x)
-    {
-      switch (line[x])
-      {
+    for (int x = 0; x < WIDTH; ++x) {
+      switch (line[x]) {
       case '.':
         state[y][x] = GROUND;
         break;
@@ -40,14 +41,10 @@ void load(field state[HEIGHT][WIDTH])
   }
 }
 
-void display(field state[HEIGHT][WIDTH])
-{
-  for (int y = 0; y < HEIGHT; ++y)
-  {
-    for (int x = 0; x < WIDTH; ++x)
-    {
-      switch (state[y][x])
-      {
+void display(const field state[HEIGHT][WIDTH]) {
+  for (int y = 0; y < HEIGHT; ++y) {
+    for (int x = 0; x < WIDTH; ++x) {
+      switch (state[y][x]) {
       case GROUND:
         printf(".");
         break;
@@ -63,12 +60,63 @@ void display(field state[HEIGHT][WIDTH])
   }
 }
 
-int main()
-{
+bool enough(const field type, const int required, const int x, const int y,
+            const field state[HEIGHT][WIDTH]) {
+  int count = 0;
+  for (int yy = max(y - 1, 0); yy <= min(y + 1, HEIGHT - 1); yy++) {
+    for (int xx = max(x - 1, 0); xx <= min(x + 1, HEIGHT - 1); xx++) {
+      if (xx == x && yy == x) {
+        continue;
+      }
+
+      if (state[y][x] == type) {
+        ++count;
+        if (count >= required)
+          return true;
+      }
+    }
+  }
+  return false;
+}
+
+void tick(const field before[HEIGHT][WIDTH], field after[HEIGHT][WIDTH]) {
+  for (int y = 0; y < HEIGHT; ++y) {
+    for (int x = 0; x < WIDTH; ++x) {
+      switch (before[y][x]) {
+      case GROUND:
+        if (enough(TREE, 3, x, y, before)) {
+          after[y][x] = TREE;
+        } else {
+          after[y][x] = GROUND;
+        }
+        break;
+      case TREE:
+        if (enough(YARD, 3, x, y, before)) {
+          after[y][x] = YARD;
+        } else {
+          after[y][x] = TREE;
+        }
+        break;
+      case YARD:
+        if (enough(YARD, 1, x, y, before) && enough(TREE, 1, x, y, before)) {
+          after[y][x] = YARD;
+        } else {
+          after[y][x] = GROUND;
+        }
+      }
+    }
+  }
+}
+
+int main() {
   field state[2][HEIGHT][WIDTH];
 
   load(state[0]);
   display(state[0]);
+
+  tick(state[0], state[1]);
+  puts("");
+  display(state[1]);
 
   return 0;
 }
